@@ -258,17 +258,25 @@ print( text_buffer_t * buffer, vec2 * pen,
 
 
 // ------------------------------------------------------------------- init ---
-void init( void )
+void init( GLFWwindow* window )
 {
     buffer = text_buffer_new( LCD_FILTERING_OFF,
                               "shaders/text.vert",
                               "shaders/text.frag" );
     vec4 black = {{0.0, 0.0, 0.0, 1.0}};
     vec4 none  = {{1.0, 1.0, 1.0, 0.0}};
+    float display_scale = 1.0f;
+    int fb_width = 0;
+    int sc_width = 0;
+
+    glfwGetFramebufferSize( window, &fb_width, NULL );
+    glfwGetWindowSize( window, &sc_width, NULL );
+
+    display_scale = fb_width / (float)sc_width;
 
     markup_t markup;
     markup.family  = "fonts/VeraMono.ttf";
-    markup.size    = 15.0;
+    markup.size    = 15.0 * display_scale;
     markup.bold    = 0;
     markup.italic  = 0;
     markup.rise    = 0.0;
@@ -284,7 +292,7 @@ void init( void )
     markup.strikethrough_color = black;
     markup.font = 0;
 
-    vec2 pen = {{10.0, 480.0}};
+    vec2 pen = {{10.0 * display_scale, 480.0 * display_scale}};
     FILE *file = fopen ( "data/256colors.txt", "r" );
     if ( file != NULL )
     {
@@ -391,10 +399,10 @@ int main( int argc, char **argv )
     fprintf( stderr, "Using GLEW %s\n", glewGetString(GLEW_VERSION) );
 #endif
 
-    init();
-
     glfwSetWindowSize( window, 800, 500 );
     glfwShowWindow( window );
+
+    init( window );
 
     while(!glfwWindowShouldClose( window ))
     {
